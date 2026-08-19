@@ -22,7 +22,7 @@ st.markdown("""
 <style>
     .block-container {padding-top: 2rem; padding-bottom: 3rem; max-width: 1200px;}
     .hero {padding: 1.4rem 1.6rem; border-radius: 16px; background: linear-gradient(135deg,#eef5ff,#f8fbff); border: 1px solid #dbe7f7; margin-bottom: 1rem;}
-    .hero h1 {margin:0; font-size:2rem;}
+    .hero h1 {margin:0; font-size:2rem; color:#1f2937;}
     .hero p {margin:.35rem 0 0 0; color:#506070;}
     .risk-card {padding:1.4rem; border-radius:16px; border:1px solid #dde3ea; background:#ffffff; box-shadow:0 2px 8px rgba(20,40,80,.05);}
     .small-note {color:#667085; font-size:.9rem;}
@@ -31,7 +31,7 @@ st.markdown("""
 
 DATA_URL = "https://raw.githubusercontent.com/dicodingacademy/dicoding_dataset/main/students_performance/data.csv"
 MODEL_PATH = Path("model/dropout_model.joblib")
-THRESHOLD = 0.40
+THRESHOLD = 0.50
 
 COURSE_MAP = {
     33: 'Biofuel Production Technologies',
@@ -75,8 +75,11 @@ def load_or_train_model():
 
     # Fallback untuk deployment awal jika artefak model belum dikomit.
     df = pd.read_csv(DATA_URL, sep=';')
-    X = df[FEATURES].copy()
-    y = (df['Status'] == 'Dropout').astype(int)
+    # Gunakan hanya outcome final untuk training: Graduate vs Dropout.
+    # Enrolled belum memiliki outcome akhir dan tidak boleh dianggap sebagai kelas negatif.
+    model_df = df[df['Status'].isin(['Dropout', 'Graduate'])].copy()
+    X = model_df[FEATURES].copy()
+    y = (model_df['Status'] == 'Dropout').astype(int)
 
     num_pipe = Pipeline([
         ('imputer', SimpleImputer(strategy='median')),
@@ -103,6 +106,8 @@ def load_or_train_model():
         'threshold': THRESHOLD,
         'features': FEATURES,
         'model_name': 'Random Forest (deployment fallback)',
+        'training_statuses': ['Graduate', 'Dropout'],
+        'target_definition': 'Graduate=0, Dropout=1',
     }
 
 artifact = load_or_train_model()

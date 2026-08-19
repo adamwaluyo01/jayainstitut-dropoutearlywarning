@@ -11,7 +11,7 @@ Jaya Jaya Institut merupakan institusi pendidikan tinggi yang ingin menekan kasu
 ### Cakupan Proyek
 - EDA dan analisis faktor dropout.
 - Data preparation untuk dashboard dan machine learning.
-- Binary classification `Dropout` vs `Non-Dropout` dengan data yang tersedia paling lambat setelah semester pertama.
+- Binary classification **`Dropout` vs `Graduate`** menggunakan hanya mahasiswa dengan outcome final. Status `Enrolled` dikeluarkan dari training karena outcome akhirnya belum diketahui.
 - Business dashboard menggunakan Looker Studio.
 - Prototype prediction menggunakan Streamlit dan deployment ke Streamlit Community Cloud.
 - Rekomendasi action items berbasis temuan data.
@@ -45,7 +45,7 @@ Notebook memprioritaskan `data/data.csv`, dan dapat menggunakan dataset resmi da
 ## Business Dashboard
 Business dashboard digunakan untuk memonitor tingkat dropout dan faktor penting seperti status pembayaran biaya kuliah, status debtor, program studi, kelompok usia, dan performa semester pertama.
 
-**Link Looker Studio:** https://datastudio.google.com/reporting/c3ac6a82-7495-4d5a-b8be-8cc0bef83493
+**Link Looker Studio:** `https://datastudio.google.com/reporting/c3ac6a82-7495-4d5a-b8be-8cc0bef83493`
 
 KPI utama:
 - Total Student: **4.424**
@@ -79,24 +79,26 @@ Jalankan prototype secara lokal:
 streamlit run app.py
 ```
 
-**Link Streamlit Community Cloud:** https://jayainsititut.streamlit.app/
+**Link Streamlit Community Cloud:** `https://jayainstitut.streamlit.app`
 
 Prototype meminta informasi yang tersedia setelah semester pertama dan menampilkan probabilitas serta tier risiko dropout. Hasil prediksi merupakan **decision-support**, bukan keputusan otomatis terhadap mahasiswa.
 
 ### Ringkasan Model
-Target machine learning dipetakan menjadi `Dropout = 1` dan `Non-Dropout = 0` (`Graduate` + `Enrolled`). Model hanya menggunakan fitur pendaftaran, faktor finansial/demografi, serta performa semester pertama.
+> **Validasi target:** training hanya menggunakan mahasiswa dengan outcome final `Graduate` dan `Dropout`. Status `Enrolled` tidak dimasukkan ke training maupun test karena outcome akhirnya belum diketahui.
 
-Dengan train-test split 80:20 (`random_state=42`) dan threshold early warning **0,40**, model terpilih adalah **Random Forest** dengan performa test set:
+Dataset modeling difilter menjadi **3.630 mahasiswa dengan outcome final**: 1.421 `Dropout` dan 2.209 `Graduate`. Sebanyak 794 mahasiswa `Enrolled` **tidak digunakan untuk training**. Target dipetakan menjadi `Dropout = 1` dan `Graduate = 0`. Model hanya menggunakan fitur pendaftaran, faktor finansial/demografi, serta performa semester pertama.
+
+Dengan train-test split 80:20 (`random_state=42`) dan threshold klasifikasi **0,50**, model terpilih adalah **Random Forest** dengan performa test set:
 
 | Metrik | Hasil |
 |---|---:|
-| Accuracy | 84,29% |
-| Precision - Dropout | 72,04% |
-| Recall - Dropout | 83,45% |
-| F1-score - Dropout | 77,32% |
-| ROC-AUC | 90,23% |
+| Accuracy | **89,39%** |
+| Precision - Dropout | **86,32%** |
+| Recall - Dropout | **86,62%** |
+| F1-score - Dropout | **86,47%** |
+| ROC-AUC | **94,83%** |
 
-Confusion matrix: **TN=509, FP=92, FN=47, TP=237**.
+Confusion matrix: **TN=403, FP=39, FN=38, TP=246**.
 
 ## Conclusion
 Dropout rate pada dataset adalah **32,12%** (1.421 dari 4.424 mahasiswa). Analisis menunjukkan beberapa segmen yang perlu mendapat perhatian lebih:
