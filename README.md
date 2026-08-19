@@ -79,7 +79,7 @@ Jalankan prototype secara lokal:
 streamlit run app.py
 ```
 
-**Link Streamlit Community Cloud:** `https://jayainstitut.streamlit.app`
+**Link Streamlit Community Cloud:** `https://jayainstitut2.streamlit.app`
 
 Prototype meminta informasi yang tersedia setelah semester pertama dan menampilkan probabilitas serta tier risiko dropout. Hasil prediksi merupakan **decision-support**, bukan keputusan otomatis terhadap mahasiswa.
 
